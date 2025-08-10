@@ -43,11 +43,9 @@ const client = createPublicClient({
 
 const address = addrArg;
 
-// fetch balance in wei
 const balance = await client.getBalance({ address });
-
-// convert thresholdEth to wei
 const threshold = parseEther(thresholdEth);
+const blockNumber = await client.getBlockNumber();
 
 // sanity: circuit uses u128. Most balances fit. Warn if not.
 const maxU128 = (1n << 128n) - 1n;
@@ -62,6 +60,7 @@ if (balance > maxU128 || threshold > maxU128) {
 const toml = `balance = "${balance.toString()}"
 threshold = "${threshold.toString()}"
 nonce = "${nonce.toString()}"
+block_number = "${blockNumber.toString()}"
 `;
 
 fs.writeFileSync("Prover.toml", toml);
@@ -72,5 +71,6 @@ console.log({
   balance: balance.toString(),
   threshold: threshold.toString(),
   nonce: nonce.toString(),
+  blockNumber: blockNumber.toString(),
 });
 console.log("Next: run `nargo execute`");
