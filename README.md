@@ -31,8 +31,6 @@ bbup
 ```bash
 # Create new Noir project
 nargo new hello_world
-
-# Navigate to project
 cd hello_world
 
 # Verify setup
@@ -56,15 +54,13 @@ nargo execute
 # Test with x=1, y=1 (this will fail)
 echo 'x = "1"' > Prover.toml
 echo 'y = "1"' >> Prover.toml
-
-# This should fail and show error
 nargo execute
 ```
 
 ### Generate and Verify Proof
 
 ```bash
-# Generate proof using Barretenberg backend
+# Generate proof
 bb prove -b ./target/hello_world.json -w ./target/hello_world.gz -o ./target
 
 # Generate verification key
@@ -85,21 +81,17 @@ xxd ./target/proof
 
 ## Lesson 2: Generate a Solidity Verifier
 
-This lesson builds on the hello world example.
+**Objective:** Create a Solidity verifier contract and use it to verify zero-knowledge proofs. This lesson builds on the hello world example.
 
-### Step 1 - Generate a Contract
+### Step 1 - Generate Contract
 
 ```bash
 nargo compile
-```
 
-This will compile your source code into a Noir build artifact stored in the `./target` directory. Generate the smart contract using:
-
-```bash
 # Generate verification key with keccak hash
 bb write_vk -b ./target/hello_world.json -o ./target --oracle_hash keccak
 
-# Generate Solidity verifier from the vkey
+# Generate Solidity verifier
 bb write_solidity_verifier -k ./target/vk -o ./target/Verifier.sol
 ```
 
@@ -113,9 +105,7 @@ A `Verifier.sol` contract is now in the target folder and can be deployed to any
 4. **Important:** Enable optimizations (set to 200) due to contract size restrictions
 5. Deploy HonkVerifier - Verifier.sol
 
-### Step 3 - Use Verifier
-
-Generate a proof with the correct output format for the deployed contract:
+### Step 3 - Generate Proof
 
 ```bash
 bb prove -b ./target/hello_world.json -w ./target/hello_world.gz -o ./target --oracle_hash keccak --output_format bytes_and_fields
@@ -135,18 +125,18 @@ bb prove -b ./target/hello_world.json -w ./target/hello_world.gz -o ./target --o
 To verify with Remix, pass the proof bytes as a hex string and public inputs as `bytes32[]`:
 
 ```bash
-# Convert proof to hex string for Remix
+# Convert proof to hex string
 echo -n "0x"; cat ./target/proof | od -An -v -t x1 | tr -d $' \n'
 ```
 
-![Proof generation output example](./hello_world/proofsample.png)
+![Proof generation output](./hello_world/proofsample.png)
 
-**Remix Interface Examples:**
+**Remix Interface:**
 
-![Remix input fields for proof verification](./hello_world/remixinput.png)
-_How the inputs will look in Remix_
+![Remix input fields](./hello_world/remixinput.png)
+_Input fields for proof verification_
 
-![Successful proof verification in Remix](./hello_world/remixoutput.png)
-_What a successful proof verification looks like_
+![Successful verification](./hello_world/remixoutput.png)
+_Successful proof verification_
 
-**Public inputs:** Use the `./target/public_inputs_fields.json` file (generated with `--output_format bytes_and_fields`). Copy the hex array directly into Remix.
+**Public inputs:** Use `./target/public_inputs_fields.json` file. Copy the hex array directly into Remix.
