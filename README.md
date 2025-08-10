@@ -123,6 +123,7 @@ bb prove -b ./target/hello_world.json -w ./target/hello_world.gz -o ./target --o
 ### Step 4 - Verify in Remix
 
 To verify with Remix, pass the proof bytes as a hex string and public inputs as `bytes32[]`:
+**Public inputs:** Use `./target/public_inputs_fields.json` file. Copy the hex array directly into Remix.
 
 ```bash
 # Convert proof to hex string
@@ -139,4 +140,83 @@ _Input fields for proof verification_
 ![Successful verification](./hello_world/remixoutput.png)
 _Successful proof verification_
 
-**Public inputs:** Use `./target/public_inputs_fields.json` file. Copy the hex array directly into Remix.
+## Lesson 3: Prove a Live Ethereum Balance Meets a Threshold
+
+**Objective:** Use Noir to prove that an Ethereum account's balance at a specific block number is greater than or equal to a public threshold, without revealing the account address.
+
+### Step 1 - Create Project Structure
+
+```bash
+# Create new Noir project
+nargo new balance_threshold
+
+# Navigate to balance_threshold directory
+cd balance_threshold
+
+# Install dependencies
+npm install
+```
+
+### Step 2 - Understand the Circuit
+
+The circuit logic is in [src/main.nr](./balance_threshold/src/main.nr). It proves:
+
+- Account balance ≥ threshold
+- Uses a nonce for uniqueness
+- References a specific block number
+
+### Step 3 - Fetch Live Blockchain Data
+
+```bash
+# Fetch balance data and generate Prover.toml
+npm run fetch -- 0x534631Bcf33BDb069fB20A93d2fdb9e4D4dD42CF 0.1
+```
+
+This script:
+
+- Fetches live balance from Ethereum mainnet
+- Sets threshold to 0.1 ETH
+- Generates unique nonce
+- Gets current block number
+- Writes `Prover.toml` with all required values
+
+### Step 4 - Generate and Verify Proof
+
+```bash
+# Generate witness
+nargo execute
+
+# Compile circuit
+nargo compile
+
+# Generate verification key
+bb write_vk -b ./target/balance_threshold.json -o ./target
+
+# Generate proof
+bb prove -b ./target/balance_threshold.json -w ./target/balance_threshold.gz -o ./target
+
+# Verify locally
+bb verify -k ./target/vk -p ./target/proof -i ./target/public_inputs
+```
+
+**What this proves:** You can demonstrate that an account has at least 0.1 ETH without revealing the account address, using live blockchain data.
+
+⚠️ **Security Warning:** There is no cryptographic guarantee yet that the balance/block number came from Ethereum — a malicious prover could fake inputs. Lesson 4 will add a trusted data source.
+
+### What's Proven & What's Trusted
+
+**What a third party can verify:**
+
+- The prover knows an account with balance ≥ 0.1 ETH at a specific block
+- The account address remains private
+- The proof is mathematically valid
+
+**What they cannot trust:**
+
+- The balance/block data actually came from Ethereum
+
+**To verify:** Send them `vk`, `proof`, and `public_inputs`, then run:
+
+```bash
+bb verify -k vk -p proof -i public_inputs
+```
