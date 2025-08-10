@@ -139,14 +139,14 @@ To verify with Remix, pass the proof bytes as a hex string and public inputs as 
 echo -n "0x"; cat ./target/proof | od -An -v -t x1 | tr -d $' \n'
 ```
 
-![Proof generation output example](./proofsample.png)
+![Proof generation output example](./hello_world/proofsample.png)
 
 **Remix Interface Examples:**
 
-![Remix input fields for proof verification](./remixinput.png)
+![Remix input fields for proof verification](./hello_world/remixinput.png)
 _How the inputs will look in Remix_
 
-![Successful proof verification in Remix](./remixoutput.png)
+![Successful proof verification in Remix](./hello_world/remixoutput.png)
 _What a successful proof verification looks like_
 
 **Public inputs:** Use the `./target/public_inputs_fields.json` file (generated with `--output_format bytes_and_fields`). Copy the hex array directly into Remix.
