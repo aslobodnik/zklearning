@@ -1,0 +1,21 @@
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Noir / Barretenberg build outputs
+target/
+Prover.toml
+Verifier.toml
+proof
+vk
+public_inputs
+*.gz
+*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
